@@ -8,10 +8,10 @@
 package wg
 
 import (
-"fmt"
-"golib/context"
-"sync"
-"time"
+	"fmt"
+	"sync"
+	"time"
+	"context"
 )
 
 type WaitGroupWrapperWithCancel struct {
