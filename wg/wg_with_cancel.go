@@ -8,38 +8,41 @@
 package wg
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
-	"context"
 )
 
 type WaitGroupWrapperWithCancel struct {
-	wg sync.WaitGroup
-	cancel func()
-	ctx context.Context
+	wg       sync.WaitGroup
+	cancel   func()
+	ctx      context.Context
 	funcName string
 }
 
 //build new waitGroup object
-func NewWaitGroupWrapper(ctx context.Context, cancel func(), funcName string ) *WaitGroupWrapperWithCancel{
+func NewWaitGroupWrapper(ctx context.Context, cancel func(), funcName string) *WaitGroupWrapperWithCancel {
 	return &WaitGroupWrapperWithCancel{
-		cancel:cancel,
-		ctx:ctx,
-		wg:sync.WaitGroup{},
-		funcName:funcName,
+		cancel:   cancel,
+		ctx:      ctx,
+		wg:       sync.WaitGroup{},
+		funcName: funcName,
 	}
 }
 
 func (this *WaitGroupWrapperWithCancel) Wrap(cb func()) {
 	this.wg.Add(1)
 	go func() {
+		defer this.wg.Done()
 		cb()
-		this.wg.Done()
 		// 取消机制
-		select {
-		case <-this.ctx.Done():
-			fmt.Printf("go cancel %s", this.funcName)
+		for {
+			select {
+			case <-this.ctx.Done():
+				fmt.Println("WaitGroupWrapper go timeout,  cancel func is [", this.funcName, "]")
+				return
+			}
 		}
 	}()
 }
