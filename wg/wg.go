@@ -1,6 +1,7 @@
 package wg
 
 import (
+	"golib/context"
 	"sync"
 	"time"
 )
@@ -8,6 +9,7 @@ import (
 type WaitGroupWrapper struct {
 	wg sync.WaitGroup
 }
+
 
 func (this *WaitGroupWrapper) Wrap(cb func()) {
 	this.wg.Add(1)
